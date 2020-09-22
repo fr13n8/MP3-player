@@ -79,7 +79,7 @@ ipcMain.on('openFile', (event, arg) => {
         if (fileNames == undefined) {
           console.log("No file selected");
         } else {
-          readFiles(fileNames.filePaths);
+          readFiles(fileNames.filePaths, fs);
           // console.log(fileNames);
         }
       }).catch(err => {
@@ -88,7 +88,7 @@ ipcMain.on('openFile', (event, arg) => {
     }
   })
 
-  async function readFiles(filePaths) {
+  async function readFiles(filePaths, fs) {
     const mm = require('music-metadata');
     // const util = require('util');
     let files = new Array;
@@ -96,14 +96,29 @@ ipcMain.on('openFile', (event, arg) => {
     for (let index = 0; index < filePaths.length; index++) {
       const filepath = filePaths[index];
       let metaData = await mm.parseFile(filepath, {duration: true});
+
+      var callback = (err) => {
+        if (err) throw err;
+        console.log('It\'s saved!');
+      }
+      
+      var fileName = 'custom_wallpaper.jpg';
+      var songName = path.parse(filepath).name;
+      if (metaData.common.picture) {
+        var fileExt = metaData.common.picture[0].format.split('/')[1];
+        fileName = `${+new Date()}.${fileExt}`;
+        var photoPath = `./src/assets/${fileName}`;
+        fs.writeFile(photoPath, metaData.common.picture[0].data, callback);
+      }
+
       files.push({
         // metaData: util.inspect(metaData, { showHidden: false, depth: null }),
         metaData,
-        fileName: path.parse(filepath).name,
-        fileExt: path.parse(filepath).ext,
-        filePath: filepath,
+        fileName,
+        songName,
         id: index,
-        howl: null
+        filepath,
+        howl: null,
       });
       console.log(files)
     }

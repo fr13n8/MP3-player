@@ -8,12 +8,27 @@ $(document).ready(function () {
         constructor( songs ) {
             this.songs = songs;
             this.index = 0;
+            this.showDetails();
+        }
+
+        static formatTime(secs) {
+            let minutes = Math.floor(secs / 60) || 0;
+            let seconds = (secs - minutes * 60) || 0;
+            return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        }
+
+        showDetails() {
+            var song = this.songs[this.index];
+            let duration = song.metaData.format.duration;
+            $(".duration").html(MusicController.formatTime(Math.round(duration)));
+            $(".cover").css('background-image', `url(./assets/${song.fileName})`);
+            $(".song-name").html(song.songName);
         }
 
         play(isPlayed = true) {
             if(!this.songs[this.index].howl){
                 this.songs[this.index].howl = new Howl({
-                    src: [this.songs[this.index].filePath],
+                    src: [this.songs[this.index].filepath],
                     // autoplay: true,
                     // loop: true,
                     volume: 0.1,
@@ -25,20 +40,19 @@ $(document).ready(function () {
                         requestAnimationFrame(this.step.bind(this));
                     },
                     onplay: () => {
-                        let duration = this.songs[this.index].metaData.format.duration;
-                        $(".duration").html(this.formatTime(Math.round(duration)));
                         requestAnimationFrame(this.step.bind(this));
                     }
                     // autoplay: false
                 });
             }
             if(isPlayed) this.songs[this.index].howl.play();
+            this.showDetails();
         }
 
         step() {
             var sound = this.songs[this.index].howl;
             var seek = sound.seek() || 0;
-            $(".timer").html(this.formatTime(Math.round(seek)));
+            $(".timer").html(MusicController.formatTime(Math.round(seek)));
             $("#progress-bar").css('width', (((seek / sound.duration()) * 100) || 0) + '%');
             if (sound.playing()) {
                 requestAnimationFrame(this.step.bind(this));
@@ -79,15 +93,10 @@ $(document).ready(function () {
         }
 
         skipTo(index) {
-            this.stopSong();
+            let isPlayed = this.songs[this.index].howl ? this.songs[this.index].howl.playing() : false;
+            if(isPlayed) this.stopSong();
             this.index = index;
-            this.play(false);
-        }
-
-        formatTime(secs) {
-            let minutes = Math.floor(secs / 60) || 0;
-            let seconds = (secs - minutes * 60) || 0;
-            return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            this.play(isPlayed);
         }
 
     }
@@ -104,12 +113,12 @@ $(document).ready(function () {
         console.log(files);
         musicFiles = files;
         player = new MusicController(musicFiles);
-        musicFiles.forEach( ( file, index ) => {
+        musicFiles.forEach( ( song, index ) => {
             $(".music-play-list").append(`
-            <li data-id=${file.id} class='song-item titlebar-button'>
+            <li data-id=${song.id} class='song-item titlebar-button'>
                 <span>${index + 1}</span>
-                <span>${file.fileName}</span> 
-                <span>4:44</span>
+                <span>${song.songName}</span> 
+                <span>${MusicController.formatTime(Math.round(song.metaData.format.duration))}</span>
             </li>
             `);
         });

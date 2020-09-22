@@ -154,6 +154,7 @@ i {
 	 background-image: url(../assets/custom_wallpaper.jpg);
 	 background-repeat: no-repeat;
 	 background-size: cover;
+	 background-position: center;
 }
  #player .top .timing {
 	 margin-bottom: 15px;

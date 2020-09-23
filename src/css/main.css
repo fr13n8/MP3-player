@@ -155,10 +155,11 @@ i {
 	 background-repeat: no-repeat;
 	 background-size: cover;
 	 background-position: center;
+	 /* -webkit-app-region: drag */
 }
  #player .top .timing {
 	 margin-bottom: 15px;
-	 margin-top: 40px;
+	 margin-top: 15px;
 	 padding: 0 10% 20px;
 	 font-family: "Montserrat", sans-serif;
 	 font-size: 0.9rem;
@@ -172,18 +173,11 @@ i {
 }
  #player .top .progress {
 	 width: 80%;
-	 height: 1px;
-	 background: rgba(153, 153, 153, 0.45);
 	 margin: 0 auto;
 	 position: relative;
 }
  #player .top .progress #progress-bar {
-	position: absolute;
-    top: 0;
-    left: 0;
-    background: #99c096;
-    width: 0;
-    height: 100%;
+	width: 100%;
  }
  #player .bottom {
 	 position: absolute;
